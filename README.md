@@ -1,74 +1,18 @@
 # Companies House MCP
 
-MCP server and CLI for the UK Companies House API. 17 tools for company search, profiles, officers, filings, ownership, charges, insolvency, and composite operations.
+An MCP server and CLI for looking up UK company information. Search for companies, check who runs them, see their filing history, run due diligence checks — all from Claude or your terminal.
 
-## What's Different
+Uses the free [Companies House API](https://developer.company-information.service.gov.uk/). You'll need an API key (takes 30 seconds to register).
 
-- **Composite tools** — `company_report` (one call gets everything), `due_diligence_check` (automated red-flag scan), `officer_network` (map a director's connections)
-- **Structured outputs** — every tool returns formatted text AND typed JSON
-- **Tool annotations** — read-only, idempotent, non-destructive hints for MCP clients
-- **CLI** — `ch search "Anthropic"`, `ch report 13861484`, `ch check 13861484`
-- **Claude Code skill** — domain expertise for UK company research
-- **Rate limiter that queues** — never throws on rate limit, just waits
+## Setup
 
-## Quick Start
+### Get an API key
 
-```bash
-# Set your API key
-export COMPANIES_HOUSE_API_KEY=your-key-here
+Register at [developer.company-information.service.gov.uk](https://developer.company-information.service.gov.uk/) and create an API key. It's free.
 
-# MCP server (stdio — for Claude Desktop, Claude Code, Cursor, etc.)
-npx companies-house-mcp
+### Use with Claude Desktop
 
-# MCP server (HTTP — for remote deployment)
-npx companies-house-mcp --http --port 3000
-
-# CLI
-npx companies-house-mcp search "Anthropic"
-npx companies-house-mcp report 13861484
-```
-
-Get an API key at [developer.company-information.service.gov.uk](https://developer.company-information.service.gov.uk/).
-
-## Tools (17)
-
-### Core (10)
-
-| Tool | Description |
-|------|-------------|
-| `search_companies` | Search by name with optional filters (status, type, SIC, location, date) |
-| `search_officers` | Find officers by name across all companies |
-| `get_company_profile` | Full profile: status, type, address, SIC codes, accounts, previous names |
-| `get_officers` | Company officers (active by default, optionally include resigned) |
-| `get_appointments` | All appointments for a specific officer across companies |
-| `get_ownership` | PSCs — who owns/controls the company, with plain-English control descriptions |
-| `get_filings` | Filing history with category filtering |
-| `get_charges` | Charges/mortgages (outstanding and satisfied) |
-| `get_insolvency` | Insolvency proceedings, practitioners, dates |
-| `get_company_registers` | Where statutory registers are held |
-
-### Composite (3)
-
-| Tool | Description |
-|------|-------------|
-| `company_report` | Full report in one call: profile + officers + PSCs + charges + filings + insolvency |
-| `due_diligence_check` | Automated red-flag scan with severity levels |
-| `officer_network` | Map an officer's company connections (by name or ID) |
-
-### Extended (4)
-
-| Tool | Description |
-|------|-------------|
-| `get_exemptions` | Company filing exemptions |
-| `get_uk_establishments` | UK branches of overseas companies |
-| `get_officer_disqualifications` | Check if an officer is disqualified |
-| `get_filing_document` | Specific filing document metadata |
-
-## Integration
-
-### Claude Desktop
-
-Add to `claude_desktop_config.json`:
+Add to your `claude_desktop_config.json`:
 
 ```json
 {
@@ -84,63 +28,117 @@ Add to `claude_desktop_config.json`:
 }
 ```
 
-### Claude Code
+### Use with Claude Code
 
-The server auto-discovers via `npx`. Set the env var and it's available.
+Add to your project or global settings:
 
-A Claude Code skill is included at `.claude/skills/companies-house/SKILL.md` with domain expertise for UK company research — company number formats, SIC code interpretation, due diligence workflows, and recommended tool sequences.
+```json
+{
+  "mcpServers": {
+    "companies-house": {
+      "command": "npx",
+      "args": ["companies-house-mcp"],
+      "env": {
+        "COMPANIES_HOUSE_API_KEY": "your-key-here"
+      }
+    }
+  }
+}
+```
 
-## CLI
+A skill file is included with domain expertise for UK company research — company number formats, SIC code interpretation, due diligence workflows, and when to generate visual diagrams from the data.
+
+### Use the CLI
+
+The CLI gives you the same data in your terminal without needing Claude.
 
 ```bash
-ch search "Anthropic"                     # Search companies
-ch search --status active --sic 62011     # Advanced search
-ch profile 13861484                       # Company profile
-ch officers 13861484                      # Active officers
-ch officers 13861484 --all                # Include resigned
-ch ownership 13861484                     # PSCs
-ch filings 13861484 --category accounts   # Filtered filings
-ch charges 13861484                       # Charges
-ch insolvency 13861484                    # Insolvency
-ch report 13861484                        # Full report
-ch check 13861484                         # Due diligence scan
-ch network "John Smith"                   # Officer network
-ch search-officers "Smith"                # Officer search
-ch profile 13861484 --json                # JSON output (pipe-friendly)
-ch serve                                  # Start MCP server (stdio)
-ch serve --http                           # Start MCP server (HTTP)
+# Save your API key (one time)
+npx companies-house-mcp config set-key your-key-here
+
+# Then use it
+npx companies-house-mcp search "Anthropic"
+npx companies-house-mcp report 14604577
+npx companies-house-mcp check 14604577
 ```
+
+Or install globally for a shorter command:
+
+```bash
+npm install -g companies-house-mcp
+ch search "Anthropic"
+ch report 14604577
+```
+
+Three output modes: clean terminal formatting (default), `--md` for markdown, `--json` for piping to other tools.
+
+## What you can do
+
+### Ask Claude
+
+Once the MCP is connected, just ask naturally:
+
+- "Look up Tesco on Companies House"
+- "Who are the directors of Anthropic Limited?"
+- "Run a due diligence check on company number 14604577"
+- "Show me the filing history for BrewDog"
+- "What other companies is this director involved with?"
+- "Does this company have any outstanding charges?"
+
+### Use the CLI
+
+```
+ch search "Anthropic"                     Search companies by name
+ch search --status active --sic 62011     Filter by status, SIC code, type
+ch profile 14604577                       Company profile
+ch officers 14604577                      Current officers
+ch officers 14604577 --all                Include resigned officers
+ch ownership 14604577                     Who owns/controls the company
+ch filings 14604577                       Filing history
+ch filings 14604577 --category accounts   Filter filings by category
+ch charges 00445790                       Charges and mortgages
+ch insolvency 00445790                    Insolvency proceedings
+ch report 14604577                        Everything in one call
+ch check 14604577                         Due diligence red-flag scan
+ch network "John Smith"                   Officer's company connections
+ch search-officers "Smith"                Search for officers by name
+```
+
+## Tools
+
+17 tools available via MCP.
+
+**Search** — `search_companies`, `search_officers`
+
+**Company data** — `get_company_profile`, `get_officers`, `get_appointments`, `get_ownership`, `get_filings`, `get_charges`, `get_insolvency`, `get_company_registers`
+
+**Composite** — these combine multiple API calls into a single response:
+- `company_report` — full company overview (profile, officers, ownership, charges, filings, insolvency)
+- `due_diligence_check` — automated red-flag scan with severity ratings
+- `officer_network` — map a director's connections across companies
+
+**Extended** — `get_exemptions`, `get_uk_establishments`, `get_officer_disqualifications`, `get_filing_document`
+
+Every tool returns both formatted text (for humans) and structured JSON (for programmatic use).
+
+## API key
+
+The API key can be set in three ways (checked in this order):
+
+1. `--key` flag — `ch profile 00445790 --key your-key`
+2. `COMPANIES_HOUSE_API_KEY` environment variable
+3. Config file — run `ch config set-key your-key` (saves to `~/.config/companies-house/config.json`)
+
+Run `ch config show` to check which source is active.
 
 ## Development
 
 ```bash
 npm install
 npm run build
-npm run typecheck
-npm run lint
-npm test                    # All tests
-npm run test:unit           # Unit tests only
+npm test                    # Unit + integration tests
+npm run test:unit           # Unit tests only (no API key needed)
 npm run test:integration    # Integration tests (needs API key)
-npm run test:coverage       # Coverage report
-```
-
-## Architecture
-
-```
-src/
-├── api/                    # HTTP client, rate limiter, cache
-│   ├── client.ts           # Single API client (native fetch, auth, retry)
-│   ├── rate-limiter.ts     # Token bucket (600 req/5min, queues when exhausted)
-│   ├── cache.ts            # LRU cache with per-endpoint TTLs
-│   └── endpoints/          # One file per API domain
-├── tools/                  # MCP tool definitions (self-registering)
-│   ├── registry.ts         # Tool registration and dispatch
-│   ├── composite.ts        # company_report, due_diligence_check, officer_network
-│   └── ...                 # search, company, officers, ownership, filings, financial, extended
-├── server/                 # MCP server (stdio + streamable HTTP)
-├── cli/                    # Terminal interface
-├── formatters/             # Shared markdown formatting
-└── types/                  # TypeScript types (snake_case matching CH API)
 ```
 
 ## Disclaimer
