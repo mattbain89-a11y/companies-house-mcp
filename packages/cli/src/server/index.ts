@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { APIClient } from '../api/client.js';
@@ -15,6 +18,11 @@ import '../tools/filings.js';
 import '../tools/financial.js';
 import '../tools/extended.js';
 import '../tools/composite.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const { version } = JSON.parse(
+  readFileSync(join(__dirname, '../../package.json'), 'utf-8')
+) as { version: string };
 
 function getApiKey(): string {
   const resolved = resolveApiKey();
@@ -42,7 +50,7 @@ async function main(): Promise<void> {
 
   const server = new McpServer({
     name: 'companies-house',
-    version: '2.0.0-alpha.1',
+    version,
   });
 
   // Register all tools using the new SDK registerTool method

@@ -5,14 +5,12 @@ export default [
   {
     ignores: [
       'dist/**',
-      'node_modules/**',
-      'coverage/**',
-      'site/**',
-      '*.js'
+      'node_modules/**'
     ]
   },
   js.configs.recommended,
   {
+    files: ['src/**/*.ts'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',

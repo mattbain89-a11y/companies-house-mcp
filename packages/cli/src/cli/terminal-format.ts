@@ -77,14 +77,14 @@ export function markdownToTerminal(markdown: string): string {
     }
 
     // Nested list item: "  - **Key:** Value" or "  - text"
-    if (/^    - /.test(line)) {
+    if (/^ {4}- /.test(line)) {
       const content = stripBold(line.slice(6));
       out.push(colourStatus(`      ${content}`));
       continue;
     }
 
     // Indented continuation (e.g. practitioner details)
-    if (/^    \S/.test(line)) {
+    if (/^ {4}\S/.test(line)) {
       out.push(`      ${line.trimStart()}`);
       continue;
     }
