@@ -3,13 +3,24 @@
   "name": "io.github.aicayzer/companies-house",
   "description": "17 tools for the UK Companies House API — company search, profiles, officers, filings, charges, insolvency, ownership, and due diligence",
   "version": "3.0.1",
+  "repository": {
+    "url": "https://github.com/aicayzer/companies-house-mcp",
+    "source": "github"
+  },
   "packages": [
     {
       "registryType": "npm",
       "identifier": "companies-house-mcp",
       "version": "3.0.1",
       "runtime": "node",
-      "transport": [{ "type": "stdio" }]
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        {
+          "name": "COMPANIES_HOUSE_API_KEY",
+          "description": "API key from developer.company-information.service.gov.uk — free to register",
+          "required": true
+        }
+      ]
     }
   ]
 }
