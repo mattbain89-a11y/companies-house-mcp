@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## companies-house-cli [1.2.0] / companies-house-mcp [3.2.0] — 2026-05-08
+
+### Added
+- **OAuth `authorization_code + PKCE` grant** — the HTTP server now supports the full interactive OAuth flow required by Claude Desktop's Custom Connector UI. Set `MCP_OAUTH_CLIENT_ID` and `MCP_OAUTH_CLIENT_SECRET` to enable; the server handles `/oauth/authorize` (mints stateless HMAC-signed codes) and `/oauth/token` (validates code + PKCE, issues bearer token). Both `S256` and `plain` challenge methods are supported.
+
+### Changed
+- **OAuth discovery** — `/.well-known/oauth-authorization-server` now advertises `authorization_endpoint`, `response_types_supported`, `grant_types_supported`, `code_challenge_methods_supported`, and `token_endpoint_auth_methods_supported` in accordance with RFC 8414.
+- **Startup log** — HTTP mode now logs the OAuth authorize and token endpoint URLs when OAuth is enabled.
+- **Docs** — added HTTP mode section, authentication and environment variable table, and Custom Connector walkthrough to `docs/mcp.md`; added `download_filing_document` to the tools reference; updated tool count 17→18 throughout.
+
+---
+
 ## companies-house-cli [1.1.0] / companies-house-mcp [3.1.0] — 2026-05-05
 
 ### Added

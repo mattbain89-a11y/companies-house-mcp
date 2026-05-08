@@ -1,6 +1,6 @@
 # Tools reference
 
-17 tools covering search, company data, officers, ownership, filings, charges, insolvency, and due diligence. Every tool returns formatted text for humans and structured JSON for agents.
+18 tools covering search, company data, officers, ownership, filings, charges, insolvency, and due diligence. Every tool returns formatted text for humans and structured JSON for agents.
 
 Company numbers are 8-digit, zero-padded strings: `14604577`, `00445790`. Scottish companies use an `SC` prefix.
 
@@ -121,6 +121,25 @@ Retrieve a specific filing document by its document ID. Returns the document con
 |-----------|------|----------|-------------|
 | `company_number` | string | Yes | Companies House company number |
 | `transaction_id` | string | Yes | Transaction ID from `get_filings` |
+
+---
+
+### `download_filing_document`
+
+Download the actual filed document (PDF / XHTML / XML / JSON) for a filing history item via the Companies House Document API. Handles the two-step redirect to the signed S3 URL automatically. Use `get_filings` first, then pass the `links.document_metadata` value (or just its final path segment) as `document_id`.
+
+By default writes the file to disk and returns the local path (`return_as: 'file_path'`). For remote HTTP servers — where the caller has no access to the server filesystem — use `return_as: 'base64'` to receive the bytes inline.
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `document_id` | string | Yes | Document ID, `/document/...` path, or full Document API URL from `links.document_metadata` |
+| `format` | string | No | Preferred content type: `pdf` (default), `xhtml`, `xml`, `json` |
+| `return_as` | string | No | `file_path` (default — write to disk, return path) or `base64` (return bytes inline) |
+| `company_number` | string | No | Included in the saved filename to help distinguish downloads |
+| `transaction_id` | string | No | Included in the saved filename and response payload |
+| `save_dir` | string | No | Absolute path for saving the file. Overrides `COMPANIES_HOUSE_DOWNLOAD_DIR` env var and OS temp dir |
 
 ---
 
