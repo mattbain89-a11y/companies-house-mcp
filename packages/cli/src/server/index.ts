@@ -139,6 +139,7 @@ async function main(): Promise<void> {
           expectedToken: expectedToken!,
           publicUrlOverride,
           port,
+          codeSigningKey: expectedToken ?? '',
         });
         if (handled) return;
       } else if (
@@ -212,7 +213,9 @@ async function main(): Promise<void> {
         console.error('Auth: NONE — set MCP_BEARER_TOKEN before exposing publicly');
       }
       if (oauthEnabled) {
-        console.error('OAuth: enabled — client_credentials grant accepted at /oauth/token');
+        console.error('OAuth: enabled (authorization_code + PKCE, client_credentials)');
+        console.error(`OAuth authorize: http://localhost:${port}/oauth/authorize`);
+        console.error(`OAuth token:     http://localhost:${port}/oauth/token`);
         console.error(`OAuth discovery: http://localhost:${port}/.well-known/oauth-authorization-server`);
       } else {
         console.error('OAuth: disabled — set MCP_OAUTH_CLIENT_ID and MCP_OAUTH_CLIENT_SECRET to enable');
