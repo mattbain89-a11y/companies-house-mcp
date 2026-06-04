@@ -8,15 +8,11 @@ RUN npm install -g pnpm
 # Copy all config files
 COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
 
-# Copy package.json files from packages
-COPY packages/*/package.json packages/mcp/package.json ./packages/mcp/ 2>/dev/null || true
-COPY packages/*/package.json packages/cli/package.json ./packages/cli/ 2>/dev/null || true
+# Copy packages directory structure
+COPY packages ./packages
 
 # Install all dependencies (including dev) with approve-builds to allow build scripts
 RUN pnpm install --frozen-lockfile
-
-# Copy source code
-COPY packages ./packages
 
 # Build the TypeScript code
 RUN pnpm -r build
@@ -32,11 +28,10 @@ RUN npm install -g pnpm
 # Copy all config files
 COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# Copy package.json files from packages
-COPY packages/*/package.json packages/mcp/package.json ./packages/mcp/ 2>/dev/null || true
-COPY packages/*/package.json packages/cli/package.json ./packages/cli/ 2>/dev/null || true
+# Copy packages directory
+COPY packages ./packages
 
-# Install only production dependencies with approve-builds
+# Install only production dependencies
 RUN pnpm install --frozen-lockfile --prod
 
 # Copy built artifacts from builder
