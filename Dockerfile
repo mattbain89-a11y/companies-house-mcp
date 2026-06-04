@@ -11,8 +11,8 @@ COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
 # Copy packages directory structure
 COPY packages ./packages
 
-# Install all dependencies (including dev) with approve-builds to allow build scripts
-RUN pnpm install --frozen-lockfile
+# Install all dependencies (including dev) - approve builds to allow esbuild scripts
+RUN pnpm install --frozen-lockfile --allow-scripts
 
 # Build the TypeScript code
 RUN pnpm -r build
@@ -31,8 +31,8 @@ COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # Copy packages directory
 COPY packages ./packages
 
-# Install only production dependencies
-RUN pnpm install --frozen-lockfile --prod
+# Install only production dependencies - approve builds
+RUN pnpm install --frozen-lockfile --prod --allow-scripts
 
 # Copy built artifacts from builder
 COPY --from=builder /app/packages/cli/dist ./packages/cli/dist
