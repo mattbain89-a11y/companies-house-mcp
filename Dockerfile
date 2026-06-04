@@ -4,17 +4,23 @@ FROM node:25-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
-COPY tsconfig.json ./
+COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy all package.json files from packages
+COPY packages ./packages
 
 # Install all dependencies
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
-COPY src ./src
+COPY packages ./packages
+COPY tsconfig.json ./
 
 # Build the TypeScript code
-RUN npm run build
+RUN pnpm -r build
 
 # Production stage
 FROM node:25-alpine
@@ -22,28 +28,27 @@ FROM node:25-alpine
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy package.json from packages
+COPY packages ./packages
 
 # Install only production dependencies
-RUN npm ci --only=production
+RUN pnpm install --frozen-lockfile --prod
 
 # Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/packages/cli/dist ./packages/cli/dist
+COPY --from=builder /app/packages/mcp/dist ./packages/mcp/dist
 
-# The server requires COMPANIES_HOUSE_API_KEY to be set at runtime
-# Example mcpServers config for your client:
-# 
-# "mcpServers": {
-#   "companies-house-mcp": {
-#     "command": "docker",
-#     "args": [
-#       "run",
-#       "--rm",
-#       "-i",
-#       "-e", "COMPANIES_HOUSE_API_KEY=your_api_key_here",
-#       "stefanoamorelli/companies-house-mcp:latest"
-#     ]
-#   }
-# }
+# Expose port for HTTP server
+EXPOSE 3000
 
-CMD ["node", "dist/index.js"]
+# Set environment variables
+ENV PORT=3000
+ENV NODE_ENV=production
+
+# Start the MCP server in HTTP mode
+CMD ["node", "packages/cli/dist/server/index.js", "--http", "--port", "3000"]
