@@ -5,14 +5,14 @@ WORKDIR /app
 # Install pnpm first
 RUN npm install -g pnpm
 
-# Copy all config files
-COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
+# Copy all config files and pnpmrc
+COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json .pnpmrc ./
 
 # Copy packages directory structure
 COPY packages ./packages
 
-# Install all dependencies (including dev) - approve builds to allow esbuild scripts
-RUN pnpm install --frozen-lockfile --allow-scripts
+# Install all dependencies (including dev)
+RUN pnpm install --frozen-lockfile
 
 # Build the TypeScript code
 RUN pnpm -r build
@@ -25,14 +25,14 @@ WORKDIR /app
 # Install pnpm
 RUN npm install -g pnpm
 
-# Copy all config files
-COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy all config files and pnpmrc
+COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml .pnpmrc ./
 
 # Copy packages directory
 COPY packages ./packages
 
-# Install only production dependencies - approve builds
-RUN pnpm install --frozen-lockfile --prod --allow-scripts
+# Install only production dependencies
+RUN pnpm install --frozen-lockfile --prod
 
 # Copy built artifacts from builder
 COPY --from=builder /app/packages/cli/dist ./packages/cli/dist
