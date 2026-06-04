@@ -13,12 +13,20 @@
       "identifier": "companies-house-mcp",
       "version": "3.2.0",
       "runtime": "node",
-      "transport": { "type": "stdio" },
+      "transport": {
+        "type": "sse"
+      },
+      "url": "https://your-render-url.onrender.com",
       "environmentVariables": [
         {
           "name": "COMPANIES_HOUSE_API_KEY",
           "description": "API key from developer.company-information.service.gov.uk — free to register",
           "required": true
+        },
+        {
+          "name": "MCP_BEARER_TOKEN",
+          "description": "Bearer token for authentication. Recommended for public servers.",
+          "required": false
         }
       ]
     }
