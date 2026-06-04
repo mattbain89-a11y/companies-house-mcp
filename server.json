@@ -16,7 +16,7 @@
       "transport": {
         "type": "sse"
       },
-      "url": "https://your-render-url.onrender.com",
+      "url": "https://companies-house-mcp-trti.onrender.com",
       "environmentVariables": [
         {
           "name": "COMPANIES_HOUSE_API_KEY",
